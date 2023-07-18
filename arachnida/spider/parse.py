@@ -31,7 +31,7 @@ def range_limited_int_type(arg):
     return num
 
 
-def main():
+def parse():
     """Extracts images from the url provided as argument"""
     parser = argparse.ArgumentParser(
         description="Extracts images from the provided url",
@@ -65,7 +65,3 @@ def main():
 
     args = parser.parse_args()
     print("Hello " + args.url + "level: " + repr(args.level), "data storage " + args.p)
-
-
-if __name__ == "__main__":
-    main()
