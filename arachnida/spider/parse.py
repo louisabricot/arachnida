@@ -38,7 +38,11 @@ def parse():
         epilog="Developed by louisabricot",
     )
 
-    parser.add_argument("url", type=url_type, help="The website's url")
+    parser.add_argument(
+        "url",
+        type=url_type,
+        help="The website's url"
+    )
 
     parser.add_argument(
         "--recursive",
@@ -64,4 +68,4 @@ def parse():
     )
 
     args = parser.parse_args()
-    print("Hello " + args.url + "level: " + repr(args.level), "data storage " + args.p)
+    print("Hello " + repr(type(args)))
