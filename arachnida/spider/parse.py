@@ -1,5 +1,3 @@
-""" Parses and validates binary arguments """
-
 import sys
 import argparse
 import validators
@@ -9,16 +7,42 @@ LEVEL_MAX_VAL = 100
 
 
 def url_type(arg):
-    """Type function for argparse - validates the url"""
+    """
+    Type function for argparse - validates the URL.
+
+    Parameters:
+        arg (str): The input URL.
+
+    Returns:
+        str: The validated URL if it's a valid URL, otherwise raises an
+        argparse.ArgumentTypeError.
+
+    Raises:
+        argparse.ArgumentTypeError: If the URL is not valid.
+    """
 
     validation = validators.url(arg, public=True)
     if validation:
         return arg
-    raise argparse.ArgumentTypeError("Must be a valid url")
+    raise argparse.ArgumentTypeError("Must be a valid URL")
 
 
 def range_limited_int_type(arg):
-    """Type function for argparse - an integer within some predefined bounds"""
+    """
+    Type function for argparse - an integer within some predefined bounds.
+
+    Parameters:
+        arg (str): The input integer as a string.
+
+    Returns:
+        int: The integer value if it falls within the defined bounds
+        (LEVEL_MIN_VAL to LEVEL_MAX_VAL), otherwise raises an
+        argparse.ArgumentTypeError.
+
+    Raises:
+        argparse.ArgumentTypeError: If the input is not a valid integer or if
+        it falls outside the specified range.
+    """
 
     try:
         num = int(arg)
@@ -26,23 +50,25 @@ def range_limited_int_type(arg):
         raise argparse.ArgumentTypeError("Must be an integer number") from exc
     if num < LEVEL_MIN_VAL or num > LEVEL_MAX_VAL:
         raise argparse.ArgumentTypeError(
-            "Argument must be < " + str(LEVEL_MAX_VAL) + "and > " + str(LEVEL_MIN_VAL)
+            f"Argument must be < {LEVEL_MAX_VAL} and > {LEVEL_MIN_VAL}"
         )
     return num
 
 
-def parse():
-    """Extracts images from the url provided as argument"""
+def parse_arguments():
+    """
+    Parse command-line arguments for extracting images from the provided URL.
+
+    Returns:
+        argparse.Namespace: The parsed arguments as a namespace object.
+    """
+
     parser = argparse.ArgumentParser(
-        description="Extracts images from the provided url",
+        description="Extracts images from the provided URL",
         epilog="Developed by louisabricot",
     )
 
-    parser.add_argument(
-        "url",
-        type=url_type,
-        help="The website's url"
-    )
+    parser.add_argument("url", type=url_type, help="The website's URL")
 
     parser.add_argument(
         "--recursive",
@@ -67,5 +93,4 @@ def parse():
         help="The path where the downloaded files will be saved. Default is ./data/",
     )
 
-    args = parser.parse_args()
-    print("Hello " + repr(type(args)))
+    return parser.parse_args()
