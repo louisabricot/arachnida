@@ -1,9 +1,11 @@
 from urllib.parse import urljoin, urlparse
+from spider.url_utils import clean_url, generate_url_patterns, Extension
+from spider.download_utils import download_image, log_download_error
 from collections import deque
 import html.parser
 from bs4 import BeautifulSoup
 import re
-
+import requests
 
 def scrape_images(page_url: str, image_url_patterns: str) -> None:
     """
@@ -67,8 +69,7 @@ def url_in_scope(base_url: str, url: str, depth: int) -> bool:
     if urlparse(base_url).netloc == urlparse(url).netloc and url_path.startswith(
         base_path
     ):
-        path_depth = url_path.count("/")
-        return depth >= path_depth - base_path.count("/")
+        return depth >= url_path.count('/') - base_path.count('/')
     return False
 
 
@@ -94,7 +95,7 @@ def get_page_content(base_url: str, url: str, depth: int) -> str:
 
         # Get content if redirection is within scope constraints
         if response.status_code in (301, 302, 303, 307, 308):
-            location = clean_url(url, response.headers.get("Location"))
+            location = clean_url(url, response.headers.get('Location'))
             if url_in_scope(base_url, location, depth):
                 response = requests.get(url, allow_redirects=True, timeout=10)
                 response.raise_for_status()
@@ -109,14 +110,20 @@ def get_page_content(base_url: str, url: str, depth: int) -> str:
 def get_subpaths(base_url: str, url: str, depth: int) -> set:
     """Scrapes html content and returns in scope subpaths"""
 
+    links = set()
     subpaths = set()
     content = get_page_content(base_url, url, depth)
     if content:
         soup = BeautifulSoup(content, "html.parser")
-        for link in soup.find_all(["link", "a"], href=True):
-            url = clean_url(base_url, link.get("href"))
-            if url_in_scope(base_url, url, depth):
-                subpaths.add(url.rstrip("/"))
+
+        # Get all links from a and link 
+        for link in soup.find_all(['link', 'a'], href=True):
+            links.add(link.get('href'))
+
+        for link in links:
+            url = clean_url(base_url, link)
+            if url.startswith(base_url) and url_in_scope(base_url, url, depth):
+                subpaths.add(url)
     return subpaths
 
 
@@ -153,7 +160,9 @@ def scrape_subpaths(base_url: str, depth: int) -> set:
     return visited
 
 
-def crawl_and_download_images(base_url: str, depth: int, download_directory: str) -> None:
+def crawl_and_download_images(
+    base_url: str, depth: int, download_directory: str
+) -> None:
     """
     Crawls a website starting from the given base URL, extracting images up to the specified depth,
     and downloads them to the provided download directory.
@@ -170,7 +179,7 @@ def crawl_and_download_images(base_url: str, depth: int, download_directory: str
     """
 
     # Scrapes subpaths
-    subpaths = scrape_subpaths(base_url, 1)
+    subpaths = scrape_subpaths(base_url, depth)
 
     # Generates the URL pattern based on the Extension enum
     url_patterns = re.compile(generate_url_patterns(Extension))
@@ -178,10 +187,12 @@ def crawl_and_download_images(base_url: str, depth: int, download_directory: str
     # Crawls the site for more directory
     images = set()
     for subpath in subpaths:
+        print(subpath)
         new_images = scrape_images(subpath, url_patterns)
         if new_images:
             images.update(new_images)
 
+    print(images)
     # Downloads images from urls
     for image in images:
         download_image(image, download_directory)

@@ -18,7 +18,7 @@ def log_download_error(url: str, exception: Exception) -> None:
         >>> log_download_error("https://example.com/image.jpg", requests.exceptions.HTTPError("404 Not Found"))
     """
 
-    log_file = "download_errors.log"
+    log_file = "download_error.log"
     with open(log_file, "a") as file:
         file.write(f"URL: {url}\nError: {str(exception)}\n\n")
 

@@ -2,7 +2,6 @@
 
 import unittest
 
-
 class TestParse(unittest.TestCase):
     """Tests the parsing of the program arguments"""
 

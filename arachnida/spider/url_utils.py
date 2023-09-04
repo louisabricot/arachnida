@@ -1,5 +1,5 @@
 from enum import Enum
-
+from urllib.parse import urlparse, urljoin
 
 class Extension(Enum):
     """
@@ -65,16 +65,16 @@ def clean_url(base_url: str, url: str) -> str:
     parsed_base_url = urlparse(base_url)
     parsed_url = urlparse(url)
 
-    if not parse_url.netloc:
+    if not parsed_url.netloc:
         # If the parse URL has no netloc (i.e., relative URLs), use the base
         # URL's scheme and netloc
         cleaned_url = urljoin(
-            parsed_base_url.scheme + "://" + parsed_base_url.netloc + parsed_url.path
+            parsed_base_url.scheme + "://" + parsed_base_url.netloc, parsed_url.path
         )
     else:
         # If the parsed URL has a netloc (i.e., absolute URL), use the parsed
         # URL's scheme, netloc and path
         cleaned_url = urljoin(
-            parsed_url.scheme + "://" + parsed_url.netloc + parsed_url.path
+            parsed_url.scheme + "://" + parsed_url.netloc, parsed_url.path
         )
-    return cleaned_url
+    return cleaned_url.rstrip('/')
