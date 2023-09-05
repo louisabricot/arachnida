@@ -1,0 +1,17 @@
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "arachnida"
+version = "0.1.0"
+
+[tool.setuptools.packages.find]
+where = ["srcs"]
+
+[project.scripts]
+spider = "srcs:crawl"
+scorpion = "srcs:parse"
+clean = "tools:clean"
+[pytest]
+testpaths = "tests"

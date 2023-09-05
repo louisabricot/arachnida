@@ -1,11 +1,11 @@
 from urllib.parse import urljoin, urlparse
-from spider.url_utils import clean_url, generate_url_patterns, Extension
+from spider.url_utils import clean_url
 from spider.download_utils import download_image, log_download_error
 from collections import deque
 import html.parser
 from bs4 import BeautifulSoup
-import re
 import requests
+import re
 
 def scrape_images(page_url: str, image_url_patterns: str) -> None:
     """
@@ -107,7 +107,7 @@ def get_page_content(base_url: str, url: str, depth: int) -> str:
     return None
 
 
-def get_subpaths(base_url: str, url: str, depth: int) -> set:
+def get_subpaths(base_url: str, url_page: str, depth: int) -> set:
     """Scrapes html content and returns in scope subpaths"""
 
     links = set()
@@ -127,72 +127,29 @@ def get_subpaths(base_url: str, url: str, depth: int) -> set:
     return subpaths
 
 
-def scrape_subpaths(base_url: str, depth: int) -> set:
+def retrieve_nested_urls(base_url: str, depth: int) -> set:
     """
-    Iteratively scrape a URL and its subpaths up to the specified depth.
-
-    Parameters:
-        base_url (str): The base URL to start scraping from.
-        depth (int): The maximum depth of subpaths to scrape.
-
-    Returns:
-        set: A set containing the visited URLs (base URL and its subpaths)
-
-    Raises:
-        ValueError: If the depth is a negative integer.
+    Iterates through paths containing the base_url and within the depth scope
+    defined by depth and retrieve more paths
+    Returns a set of the paths that were visited.
     """
-
-    visited = set()
-    queue = deque([base_url])
 
     if depth == 0:
         return set([base_url])
 
-    while queue:
-        current_url = queue.popleft()
-        if current_url in visited:
-            continue
-        subpaths = get_subpaths(base_url, current_url, depth)
-        visited.add(current_url)
+    visited = set()
+    to_visit = set([base_url])
+
+    while len(to_visit) > 0:
+        url = to_visit.pop()
+
+        subpaths = retrieve_links_from_page(base_url, url, depth)
+
+        visited.add(url)
+
         for path in subpaths:
-            if path not in visited:
-                queue.append(path)
+            to_visit.add(path)
+
+        to_visit.difference_update(visited)
+
     return visited
-
-
-def crawl_and_download_images(
-    base_url: str, depth: int, download_directory: str
-) -> None:
-    """
-    Crawls a website starting from the given base URL, extracting images up to the specified depth,
-    and downloads them to the provided download directory.
-
-    Parameters:
-        base_url (str): The base URL from which the spider starts crawling.
-        depth (int): The maximum depth to crawl for subpaths.
-        download_directory (str): The directory where the downloaded images will be saved.
-
-    Example:
-        >>> spider("https://example.com/", depth=3, download_directory="images")
-        The spider will crawl the website starting from "https://example.com/" up to a depth of 3.
-        It will extract images found during the crawl and download them to the "images" directory.
-    """
-
-    # Scrapes subpaths
-    subpaths = scrape_subpaths(base_url, depth)
-
-    # Generates the URL pattern based on the Extension enum
-    url_patterns = re.compile(generate_url_patterns(Extension))
-
-    # Crawls the site for more directory
-    images = set()
-    for subpath in subpaths:
-        print(subpath)
-        new_images = scrape_images(subpath, url_patterns)
-        if new_images:
-            images.update(new_images)
-
-    print(images)
-    # Downloads images from urls
-    for image in images:
-        download_image(image, download_directory)
