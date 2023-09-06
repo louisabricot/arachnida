@@ -6,6 +6,7 @@ import html.parser
 from bs4 import BeautifulSoup
 import requests
 import re
+import logging
 
 def scrape_images(page_url: str, image_url_patterns: str) -> None:
     """
@@ -49,7 +50,7 @@ def scrape_images(page_url: str, image_url_patterns: str) -> None:
     return None
 
 
-def url_in_scope(base_url: str, url: str, depth: int) -> bool:
+def url_in_scope(url: str, base_url: str, depth: int) -> bool:
     """
     Check if the given URL is within the scope of the base URL based on depth.
 
@@ -63,66 +64,46 @@ def url_in_scope(base_url: str, url: str, depth: int) -> bool:
         bool: True if the URL is within scope; otherwise, false.
     """
 
-    base_path = urlparse(base_url).path
-    url_path = urlparse(url).path
+    url_path = urlparse(url).path.rstrip('/')
+    base_url_path = urlparse(base_url).path.rstrip('/')
 
-    if urlparse(base_url).netloc == urlparse(url).netloc and url_path.startswith(
-        base_path
-    ):
-        return depth >= url_path.count('/') - base_path.count('/')
+    if urlparse(base_url).hostname == urlparse(url).hostname and url_path.startswith(base_url_path):
+        return depth >= url_path.count('/') - base_url_path.count('/')
     return False
 
 
-def get_page_content(base_url: str, url: str, depth: int) -> str:
-    """
-    Get the content of a web page given a URL while handling redirections and
-    scope constraints.
-
-    Parameters:
-        base_url (str): The base URL that defines the scope.
-        url (str): The URL of the page to retrieve content from.
-        depth (int): The depth of the allowed paths within the scope from the
-        base url.
-
-    Returns:
-        str: The content of the web page if successful, otherwise None.
-    """
-
+def fetch_url_content(url: str, base_url: str, depth: int) -> str:
+    
     try:
-        # Make an HTTP get request to the page url
-        response = requests.get(url, allow_redirects=False, timeout=10)
-        response.raise_for_status()
-
-        # Get content if redirection is within scope constraints
-        if response.status_code in (301, 302, 303, 307, 308):
-            location = clean_url(url, response.headers.get('Location'))
-            if url_in_scope(base_url, location, depth):
-                response = requests.get(url, allow_redirects=True, timeout=10)
-                response.raise_for_status()
-                return response.text
-        else:
+        response = requests.get(url)
+        if response.status_code == 200:
             return response.text
-    except requests.exceptions.RequestException as e:
-        log_download_error(url, e)
+        elif response.status_code in (301, 302, 307, 308):
+            redirection_url = response.headers.get('Location')
+            if redirection_url and url_in_scope(redirection_url, base_url, depth):
+                fetch_url_content(redirection_url, base_url, depth)
+            else:
+                logging.error(f"Redirection to an external URL: {redirection_url}")
+        else:
+            logging.error(f"HTTP Error {response.status_code} for URL: {url}")
+    except requests.RequestException as e:
+        logging.error(f"Request Exception: {str(e)} for URL: {url}")
+
     return None
 
-
-def get_subpaths(base_url: str, url_page: str, depth: int) -> set:
+def retrieve_links_from_page(base_url: str, url_page: str, depth: int) -> set:
     """Scrapes html content and returns in scope subpaths"""
 
-    links = set()
     subpaths = set()
-    content = get_page_content(base_url, url, depth)
+    content = fetch_url_content(base_url, url_page, depth)
     if content:
         soup = BeautifulSoup(content, "html.parser")
 
         # Get all links from a and link 
         for link in soup.find_all(['link', 'a'], href=True):
-            links.add(link.get('href'))
 
-        for link in links:
-            url = clean_url(base_url, link)
-            if url.startswith(base_url) and url_in_scope(base_url, url, depth):
+            url = clean_url(url_page, link.get('href'))
+            if url.startswith(base_url) and url_in_scope(url, base_url, depth):
                 subpaths.add(url)
     return subpaths
 
@@ -141,6 +122,7 @@ def retrieve_nested_urls(base_url: str, depth: int) -> set:
     to_visit = set([base_url])
 
     while len(to_visit) > 0:
+
         url = to_visit.pop()
 
         subpaths = retrieve_links_from_page(base_url, url, depth)

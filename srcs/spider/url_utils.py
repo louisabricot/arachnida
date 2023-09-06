@@ -1,5 +1,6 @@
 from enum import Enum
 from urllib.parse import urlparse, urljoin
+import os
 
 class Extension(Enum):
     """
@@ -37,12 +38,10 @@ def generate_url_patterns(extension_enum: Enum) -> str:
     pattern = r"(?:.(?!https?:\/\/))+.({})$".format("|".join(extensions))
     return pattern
 
-
 def clean_url(base_url: str, url: str) -> str:
     """
     Clean the given URL by removing any query parameters while preserving
-    scheme, netloc and path.
-    Convert relative URLs to absolute URLs using the base URL.
+    scheme, netloc and path.Convert relative URLs to absolute URLs using the base URL.
 
     Parameters:
         base_url (str): The base URL from which the URL is resolved.
@@ -50,31 +49,17 @@ def clean_url(base_url: str, url: str) -> str:
 
     Returns:
         str: The cleaned absolute URL.
-
-    Example:
-        >>> base_url = "https://example.com/path/"
-        >>> relative_url = "/page.html?param=123"
-        >>> clean_url(base_url, relative_url)
-        'https://example.com/path/page.html'
-
-        >>> absolute_url = "https://example.com/other-page.html?param=456"
-        >>> clean_url(base_url, absolute_url)
-        'https://example.com/other-page.html'
     """
+    
+    # Parse the base URL and the cleaned URL
+    base_url_parts = urlparse(base_url)
 
-    parsed_base_url = urlparse(base_url)
-    parsed_url = urlparse(url)
+    # Clean the absolute URL by removing query parameters and trailing
+    # slashes
+    url_parts = urlparse(url)._replace(params="", query="", fragment="")
 
-    if not parsed_url.netloc:
-        # If the parse URL has no netloc (i.e., relative URLs), use the base
-        # URL's scheme and netloc
-        cleaned_url = urljoin(
-            parsed_base_url.scheme + "://" + parsed_base_url.netloc, parsed_url.path
-        )
-    else:
-        # If the parsed URL has a netloc (i.e., absolute URL), use the parsed
-        # URL's scheme, netloc and path
-        cleaned_url = urljoin(
-            parsed_url.scheme + "://" + parsed_url.netloc, parsed_url.path
-        )
-    return cleaned_url.rstrip('/')
+    if not url_parts.netloc:
+        # If the provided URL is relative, make it absolute using the base URL
+        return urljoin(base_url, url_parts.path)
+
+    return url_parts.geturl().rstrip('/')

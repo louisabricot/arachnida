@@ -1,35 +1,38 @@
 from spider.parse_utils import url_type, range_limited_int_type
-from spider.scrape import scrape_subpaths, scrape_images
+from spider.scrape import retrieve_nested_urls, scrape_images
 from spider.download_utils import download_image
-from spider.url_utils import clean_url, generate_url_patterns, Extension
+from spider.url_utils import generate_url_patterns, Extension
 import sys
 import os
 import argparse
 import re
 
-def crawler(url: str, level: int, download_directory: str) -> None:
+def crawler(url: str, depth: int, download_directory: str) -> None:
     """
     Crawls a website starting from the given base URL, extracting images up to the specified depth,
     and downloads them to the provided download directory.
 
     Parameters:
         base_url (str): The base URL from which the spider starts crawling.
-        depth (int): The maximum depth to crawl for subpaths.
+        depth (int): The maximum depth to crawl for nested_urls.
         download_directory (str): The directory where the downloaded images will be saved.
     """
 
-    # Scrapes subpaths
-    subpaths = scrape_subpaths(url, level)
+    # Scrapes nested_urls
+    nested_urls = retrieve_nested_urls(url, depth)
+
+    print(nested_urls)
+    exit(0)
 
     # Generates the URL pattern based on the Extension enum
     url_patterns = re.compile(generate_url_patterns(Extension))
 
-    # Crawls the site for more directory
+    # Scrapes images in nested_urls
     images = set()
-    for subpath in subpaths:
-        new_images = scrape_images(subpath, url_patterns)
-        if new_images:
-            images.update(new_images)
+    for url in nested_urls:
+        scraped_images = scrape_images(url, url_patterns)
+        if scraped_images:
+            images.update(scraped_images)
 
     # Downloads images from urls
     for image in images:
@@ -63,7 +66,7 @@ def crawl():
         "-l",
         type=range_limited_int_type,
         default=5,
-        help="The maximum depth level of the recursive download. Default is 5",
+        help="The maximum depth of the recursive download. Default is 5",
     )
 
     parser.add_argument(
@@ -87,6 +90,6 @@ def crawl():
             pass
 
     if not args.recursive:
-        args.level = 0
+        args.depth = 0
 
-    crawler(url=args.url.rstrip('/'), level=args.level, download_directory=args.p) 
+    crawler(url=args.url.rstrip('/'), depth=args.level, download_directory=args.p) 
