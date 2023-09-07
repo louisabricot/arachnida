@@ -6,6 +6,7 @@ import sys
 import os
 import argparse
 import re
+import logging
 
 def crawler(url: str, depth: int, download_directory: str) -> None:
     """
@@ -20,9 +21,6 @@ def crawler(url: str, depth: int, download_directory: str) -> None:
 
     # Scrapes nested_urls
     nested_urls = retrieve_nested_urls(url, depth)
-
-    print(nested_urls)
-    exit(0)
 
     # Generates the URL pattern based on the Extension enum
     url_patterns = re.compile(generate_url_patterns(Extension))
@@ -78,18 +76,14 @@ def crawl():
 
     args = parser.parse_args()
     
-    download_error_log = "download_error.log"
+    logging.basicConfig(filename="crawler.log", encoding="utf-8",
+    level=logging.ERROR)
 
     # Creates the download directory
     if not os.path.exists(args.p):
         os.makedirs(args.p)
 
-    # Creates error log file
-    if not os.path.exists(download_error_log):
-        with open(download_error_log, "w") as file:
-            pass
-
     if not args.recursive:
-        args.depth = 0
+        args.level = 0
 
     crawler(url=args.url.rstrip('/'), depth=args.level, download_directory=args.p) 

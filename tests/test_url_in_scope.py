@@ -2,18 +2,23 @@ from spider.scrape import url_in_scope
 
 # TODO: put parameters in variables and change their order
 def test_basic_depth():
-    in_scope = url_in_scope("https://github.com", "https://github.com/louisabricot", 1)
+    base_url = "https://github.com"
+    url = "https://github.com/louisabricot"
+    in_scope = url_in_scope(url, base_url, 1)
     assert in_scope == True
-    not_in_scope = url_in_scope("https://github.com", "https://github.com/louisabricot", 0)
+    not_in_scope = url_in_scope(url, base_url, 0)
     assert not_in_scope == False
 
 def test_https_vs_http():
-    in_scope = url_in_scope("http://github.com","https://github.com/louisabricot", 1)
+    base_url = "http://github.com"
+    url = "https://github.com/louisabricot"
+    in_scope = url_in_scope(url, base_url, 1)
     assert in_scope == True
 
 def test_trailing_slash():
-    in_scope = url_in_scope("https://github.com",
-    "https://github.com/louisabricot/", 1)
+    base_url = "https://github.com"
+    url = "https://github.com/louisabricot/"
+    in_scope = url_in_scope(url, base_url, 1)
     assert in_scope == True
 
 def test_simple_not_matching_domain():

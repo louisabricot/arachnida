@@ -1,5 +1,5 @@
 from urllib.parse import urljoin, urlparse
-from spider.url_utils import clean_url
+from spider.url_utils import clean_url, url_in_scope
 from spider.download_utils import download_image, log_download_error
 from collections import deque
 import html.parser
@@ -50,38 +50,21 @@ def scrape_images(page_url: str, image_url_patterns: str) -> None:
     return None
 
 
-def url_in_scope(url: str, base_url: str, depth: int) -> bool:
-    """
-    Check if the given URL is within the scope of the base URL based on depth.
-
-    Parameters:
-        base_url (str): The base URL that defines the scope.
-        url (str): The URL to check if it is within the scope.
-        depth (int): The depth of the allowed paths within the scope from the
-        base_url
-
-    Returns:
-        bool: True if the URL is within scope; otherwise, false.
-    """
-
-    url_path = urlparse(url).path.rstrip('/')
-    base_url_path = urlparse(base_url).path.rstrip('/')
-
-    if urlparse(base_url).hostname == urlparse(url).hostname and url_path.startswith(base_url_path):
-        return depth >= url_path.count('/') - base_url_path.count('/')
-    return False
-
-
-def fetch_url_content(url: str, base_url: str, depth: int) -> str:
+def fetch_url_content(url: str, base_url: str, depth: int, visited: set) -> str:
     
     try:
         response = requests.get(url)
         if response.status_code == 200:
-            return response.text
+            if response.headers and 'html' in response.headers.get('content-type'):
+                return response.text
+            else:
+                logging.error(f"Cannot parse content-type {response.headers['content-type']} for URL: {url}")
+
         elif response.status_code in (301, 302, 307, 308):
             redirection_url = response.headers.get('Location')
-            if redirection_url and url_in_scope(redirection_url, base_url, depth):
-                fetch_url_content(redirection_url, base_url, depth)
+            if redirection_url and url_in_scope(redirection_url, base_url,depth):
+                if redirection_url not in visited:
+                    fetch_url_content(redirection_url, base_url, depth, visited)
             else:
                 logging.error(f"Redirection to an external URL: {redirection_url}")
         else:
@@ -91,15 +74,16 @@ def fetch_url_content(url: str, base_url: str, depth: int) -> str:
 
     return None
 
-def retrieve_links_from_page(base_url: str, url_page: str, depth: int) -> set:
-    """Scrapes html content and returns in scope subpaths"""
+def retrieve_urls_from_page(content: str, url_page: str, base_url: str, depth: int) -> set:
 
     subpaths = set()
-    content = fetch_url_content(base_url, url_page, depth)
     if content:
+        if not re.search(r'<!DOCTYPE html>', content):
+            logging.error(f"Not HTML for URL: {url_page}")
+            return set()
+        # TODO: Check if file starts with DOCTYPE 
         soup = BeautifulSoup(content, "html.parser")
-
-        # Get all links from a and link 
+        # Get all links from a and link
         for link in soup.find_all(['link', 'a'], href=True):
 
             url = clean_url(url_page, link.get('href'))
@@ -121,17 +105,15 @@ def retrieve_nested_urls(base_url: str, depth: int) -> set:
     visited = set()
     to_visit = set([base_url])
 
-    while len(to_visit) > 0:
+    while to_visit:
 
-        url = to_visit.pop()
-
-        subpaths = retrieve_links_from_page(base_url, url, depth)
-
-        visited.add(url)
-
-        for path in subpaths:
-            to_visit.add(path)
-
+        current_url = to_visit.pop()
+        content = fetch_url_content(current_url, base_url, depth, visited)
+        if content:
+            retrieved_urls = retrieve_urls_from_page(content, current_url, base_url, depth)
+            for url in retrieved_urls:
+                to_visit.add(url)
+            visited.add(current_url)
         to_visit.difference_update(visited)
 
     return visited

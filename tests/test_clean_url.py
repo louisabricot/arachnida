@@ -13,10 +13,10 @@ def test_relative_url_with_params_and_fragments():
     assert result == "http://github.com/page"
 
 def test_relative_url_with_fragment():
-    base_url = "https://example.com/path/to/page"
+    base_url = "https://example.com/path/to/page/"
     url = "../another-page#section"
     result = clean_url(base_url, url)
-    assert result == "https://example.com/another-page"
+    assert result == "https://example.com/path/to/another-page"
 
 def test_empty_url():
     base_url = "https://example.com/path/to/page"
