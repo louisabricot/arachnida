@@ -1,24 +1,7 @@
-from enum import Enum
 from urllib.parse import urlparse, urljoin
 import os
-
-class Extension(Enum):
-    """
-    Enumeration representing image file extensions.
-
-    Attributes:
-        JPEG (str): Represents the 'jpeg' image file extension.
-        JPG (str): Represents the 'jpg' image file extension.
-        GIF (str): Represents the 'gif' image file extension.
-        BMP (str): Represents the 'bmp' image file extension.
-        PNG (str): Represents the 'png' image file extension.
-    """
-
-    JPEG = "jpeg"
-    JPG = "jpg"
-    GIF = "gif"
-    BMP = "bmp"
-    PNG = "png"
+from .image_utils import Extension
+from enum import Enum
 
 
 def generate_url_patterns(extension_enum: Enum) -> str:
@@ -38,6 +21,7 @@ def generate_url_patterns(extension_enum: Enum) -> str:
     pattern = r"(?:.(?!https?:\/\/))+.({})$".format("|".join(extensions))
     return pattern
 
+
 def clean_url(base_url: str, url: str) -> str:
     """
     Clean the given URL by removing any query parameters while preserving
@@ -50,7 +34,7 @@ def clean_url(base_url: str, url: str) -> str:
     Returns:
         str: The cleaned absolute URL.
     """
-    
+
     # Parse the base URL and the cleaned URL
     base_url_parts = urlparse(base_url)
 
@@ -79,9 +63,11 @@ def url_in_scope(url: str, base_url: str, depth: int) -> bool:
         bool: True if the URL is within scope; otherwise, false.
     """
 
-    url_path = urlparse(url).path.rstrip('/')
-    base_url_path = urlparse(base_url).path.rstrip('/')
+    url_path = urlparse(url).path.rstrip("/")
+    base_url_path = urlparse(base_url).path.rstrip("/")
 
-    if urlparse(base_url).hostname == urlparse(url).hostname and url_path.startswith(base_url_path):
-        return depth >= url_path.count('/') - base_url_path.count('/')
+    if urlparse(base_url).hostname == urlparse(url).hostname and url_path.startswith(
+        base_url_path
+    ):
+        return depth >= url_path.count("/") - base_url_path.count("/")
     return False
