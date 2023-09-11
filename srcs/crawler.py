@@ -10,7 +10,7 @@ from spider.download_utils import download_image
 from spider.url_utils import generate_url_patterns
 from spider.image_utils import Extension
 
-logo = r'''             ||                                 .                  | 
+logo = r"""             ||                                 .                  | 
              ||                                 .                  |
              ||                                 .              | /   \ |
              ||                                 .             \_\\   //_/  
@@ -26,11 +26,7 @@ logo = r'''             ||                                 .                  |
       ` (   \   /   ) `                 |_| 
          \         /                    |_|
           `       `
-          '''
-
-
-
-
+          """
 
 
 def crawl_website(url: str, depth: int, download_directory: str) -> None:
@@ -46,12 +42,12 @@ def crawl_website(url: str, depth: int, download_directory: str) -> None:
         None
     """
 
+    print("   -----------------------------------------------")
+    print(f"  | Finding paths from {url} with depth {depth} |")
+    print("   -----------------------------------------------\n")
+
     # Scrape nested URLs
     nested_urls = retrieve_nested_urls(url, depth)
-
-    print(f"Nested URLs from {url}, with depth {depth}:")
-    for url in nested_urls:
-        print(f"{url}")
 
     # Generate the URL pattern based on the Extension enum
     url_patterns = re.compile(generate_url_patterns(Extension))
@@ -117,9 +113,7 @@ def crawl():
 
     args = parser.parse_args()
 
-    logging.basicConfig(
-        filename='crawler.log',
-        level=logging.ERROR)
+    logging.basicConfig(filename="crawler.log", level=logging.ERROR)
     # Creates the download directory if it doesn't exist
     if not os.path.exists(args.p):
         os.makedirs(args.p)
