@@ -63,7 +63,7 @@ def get_urls_from_page(
             # Only scrapes HTML pages
             if response.headers and "text/html" in response.headers.get("content-type"):
                 nested_urls.add(webpage)
-                print(webpage)
+                # print(webpage)
                 return get_urls_from_page_content(
                     response.text, webpage, base_url, depth
                 )

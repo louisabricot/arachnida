@@ -1,25 +1,5 @@
 from urllib.parse import urlparse, urljoin
 import os
-from .image_utils import Extension
-from enum import Enum
-
-
-def generate_url_patterns(extension_enum: Enum) -> str:
-    """
-    Dynamically generate URL pattern ending in one of the extension from the
-    extension_enum.
-
-    Parameters:
-        extension_enum (Enum): An enumeration of extensions to be used in the
-        URL pattern.
-
-    Returns:
-        str: The generated URL pattern.
-    """
-
-    extensions = [ext.value for ext in extension_enum]
-    pattern = r"(?:.(?!https?:\/\/))+.({})$".format("|".join(extensions))
-    return pattern
 
 
 def clean_url(base_url: str, url: str) -> str:

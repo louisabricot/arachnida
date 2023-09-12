@@ -23,7 +23,7 @@ def log_download_error(url: str, exception: Exception) -> None:
         file.write(f"URL: {url}\nError: {str(exception)}\n\n")
 
 
-def download_image(url: str, download_directory: str) -> None:
+def download_image(url: str, download_directory: str) -> bool:
     """
     Downloads the image from the given url to the specified download directory.
 
@@ -45,5 +45,7 @@ def download_image(url: str, download_directory: str) -> None:
         image_path = os.path.join(download_directory, os.path.basename(url))
         with open(image_path, "wb") as file:
             file.write(response.content)
+            return True
     except requests.exceptions.RequestException as e:
         log_download_error(url, e)
+    return False
