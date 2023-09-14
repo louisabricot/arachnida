@@ -41,8 +41,7 @@ import logging
 from termcolor import cprint, colored
 from tools.parse_utils import url_type, range_limited_int_type
 from tools.scrape import retrieve_nested_urls, scrape_files
-from tools.download_utils import download_image
-from tools.image_utils import Extension
+from tools.download import download_file
 
 LOGO = r"""                   .                                          ||
                    .                                          || 
@@ -85,20 +84,20 @@ def crawl_website(
 
     # Scrape nested URLs
     nested_urls = retrieve_nested_urls(url, depth)
+
     print("Found " + colored(f"{len(nested_urls)}", "white", "on_yellow") + " URLs")
 
-    # Generate the URL pattern based on specified extensions
-    url_patterns = r"(?:.(?!https?:\/\/))+.({})$".format("|".join(extensions))
 
     cprint(
         f" 🔍  Scraping {len(nested_urls)} URLs for files ending with {extensions}...",
         "white",
         attrs=["bold"],
     )
+
     # Scrape files in nested_urls
     file_urls = set()
     for nested_url in nested_urls:
-        scraped_files = scrape_files(nested_url, url_patterns)
+        scraped_files = scrape_files(nested_url, extensions)
         if scraped_files:
             file_urls.update(scraped_files)
 
@@ -175,7 +174,7 @@ def crawl():
         "-e",
         type=str,
         nargs="+",
-        default=[e.value for e in Extension],
+        default=["jpg", "jpeg", "png", "gif", "bmp"],
         help="File extensions to download. Default is jpg, jpeg, gif, png and bmp",
     )
 

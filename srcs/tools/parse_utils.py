@@ -1,9 +1,19 @@
+"""
+This module provides utility functions and types for working with command-line arguments.
+
+Functions:
+    url_type(arg: str) -> str:
+        Type function for argparse - validates the URL.
+
+    range_limited_int_type(arg: str) -> int:
+        Type function for argparse - an integer within some predefined bounds.
+"""
+
 import argparse
 import validators
 
 LEVEL_MIN_VAL = 1
 LEVEL_MAX_VAL = 100
-
 
 def url_type(arg):
     """

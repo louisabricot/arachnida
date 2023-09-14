@@ -1,11 +1,23 @@
-from urllib.parse import urlparse, urljoin
-import os
+"""
+This module provides utility functions for working with URLs.
 
+Functions:
+    clean_url(base_url: str, url: str) -> str:
+        Cleans the given URL by removing any query parameters while preserving
+        scheme, netloc, and path. Converts relative URLs to absolute URLs using
+        the base URL.
+
+    url_in_scope(url: str, base_url: str, depth: int) -> bool:
+        Check if the given URL is within the scope of the base URL based on depth.
+"""
+
+from urllib.parse import urlparse, urljoin
 
 def clean_url(base_url: str, url: str) -> str:
     """
-    Clean the given URL by removing any query parameters while preserving
-    scheme, netloc and path.Convert relative URLs to absolute URLs using the base URL.
+    Cleans the given URL by removing any query parameters while preserving
+    scheme, netloc and path.
+    Converts relative URLs to absolute URLs using the base URL.
 
     Parameters:
         base_url (str): The base URL from which the URL is resolved.
@@ -14,9 +26,6 @@ def clean_url(base_url: str, url: str) -> str:
     Returns:
         str: The cleaned absolute URL.
     """
-
-    # Parse the base URL and the cleaned URL
-    base_url_parts = urlparse(base_url)
 
     # Clean the absolute URL by removing query parameters and trailing
     # slashes

@@ -26,18 +26,17 @@ from bs4 import BeautifulSoup
 from tools.url_utils import clean_url, url_in_scope
 
 
-def scrape_files(webpage: str, file_url_patterns: str) -> set:
+def scrape_files(webpage: str, extensions: list) -> set:
     """
     Scrapes file URLs from a webpage matching the specified file URLs
     patterns.
 
     Args:
         webpage (str): The URL of the web page to scrape.
-        file_url_patterns (str): A regular expression pattern to filter file
-        URLs
+        extensions (list): A list of file extensions to scrape.
 
     Returns:
-        set: A set of filtered file URLs matching the pattern.
+        set: A set of filtered file URLs matching the specified extensions.
             Returns an empty set if no matches are found or an error occurs.
     """
 
@@ -50,10 +49,14 @@ def scrape_files(webpage: str, file_url_patterns: str) -> set:
         soup = BeautifulSoup(response.content, "html.parser")
 
         # Gathers the 'src' attribute of all img tags
-        img_srcs = set(link.attrs["href", "src"] for link in soup.find_all(["a", "img"], src=True))
+        img_srcs = set(link.attrs["src"] for link in soup.find_all(["img"], src=True))
+        img_srcs.update(set(link.attrs["href"] for link in soup.find_all(["a"], href=True)))
+
+        # Generate the URL pattern based on specified extensions
+        extension_patterns = r"(?:.(?!https?:\/\/))+.({})$".format("|".join(extensions))
 
         # Filters 'src' based on the provided pattern
-        filtered_urls = {src for src in img_srcs if re.search(file_url_patterns, src)}
+        filtered_urls = {src for src in img_srcs if re.search(extension_patterns, src)}
 
         return filtered_urls
 
