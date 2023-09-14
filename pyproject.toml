@@ -7,10 +7,10 @@ name = "arachnida"
 version = "0.1.0"
 
 [tool.setuptools.packages.find]
-where = ["srcs/"]
+where = ["srcs"]
 
 [project.scripts]
-spider = "crawler:crawl"
+spider = "spider:crawl"
 scorpion = "exif_parser:parse"
 
 [pytest]

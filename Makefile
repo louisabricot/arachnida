@@ -1,5 +1,9 @@
-LOGS =   crawler.log \
-         download.log \
+SPIDER = spider
+
+SCORPIO = scorpio
+
+LOGS =   $(SPIDER).log \
+         $(SCORPIO).log \
 
 DATA =   data
 
