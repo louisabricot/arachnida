@@ -1,4 +1,9 @@
 # Arachnida: Cybersecurity Tools Suite
+<!-- BADGIE TIME -->
+
+[![pre-commit](https://img.shields.io/badge/pre--commit-enabled-brightgreen?logo=pre-commit)](https://github.com/pre-commit/pre-commit)
+
+<!-- END BADGIE TIME -->
 
 Arachnida is a cybersecurity project at School 42, consisting in two essential programs:
 - **spider**: A web scraper for downloading specific file types recursively,
