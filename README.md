@@ -1,68 +1,66 @@
-## About this project
+# Arachnida: Cybersecurity Tools Suite
 
-This project is the first in a series of cybersecurity-related projects at school 42. It involves developing two programs:
-- **spider**: a web scraper that recursively downloads any files matching the specified extensions,
-- **scorpion**: a metadata parser and editor.
-
-### Built with
-
-![Python](https://img.shields.io/badge/python-3670A0?style=for-the-badge&logo=python&logoColor=ffdd54)
+Arachnida is a cybersecurity project at School 42, consisting in two essential programs:
+- **spider**: A web scraper for downloading specific file types recursively,
+- **scorpion**: A metadata parser and editor.
 
 ## Getting Started
 
-### Prerequisites
+### Requirements
 
-To run this project you'll need:
-- python3
-- pip3
-- make
+To run this project, ensure you have:
+- Python3
+- Pip3
+- Make
 
 ### Installation
 
-1. Clone the repository
+1. Clone the repository:
 ```bash
   git clone https://github.com/louisabricot/arachnida
   cd arachnida
 ```
 
-2. Install required packages
+2. Install the required packages:
 ```bash
   make install
 ```
 
-3. Setup the project
+3. Setup the project:
 ```bash
   make
 ``` 
 
 ## Usage
 
-Use `spider` to recursively download all *.png* and *.jpg* files, choosing the depth of recursion:
+### Spider
+
+Download .png and .jpg files recursively:
 
 ```bash
   spider https://example.com --recursive --level=2 -p ./downloaded_images/ --extension jpg png
 ```
 
-Use `scorpio` to display files metadata and remove them:
+### Scorpio
+
+Display file metadata and make edits:
 ```bash
   scorpio ./downloaded_images/ ...
 ```
 
 ### Running tests
 
-To run tests, run the following command:
+To run tests:
 
 ```bash
   make test
 ```
 
-## Spider
-
-A web scraper, also known as a web crawling tool, is a software application or script designed to automatically extract data from websites.
-
-## Scorpion
-
 ## License
+
+## Project Status
+
+This project is actively in development.
 
 ## References
 
