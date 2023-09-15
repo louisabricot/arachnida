@@ -11,7 +11,7 @@ where = ["srcs"]
 
 [project.scripts]
 spider = "spider:crawl"
-scorpion = "exif_parser:parse"
+scorpio = "scorpio:parse"
 
 [pytest]
 testpaths = "tests"
