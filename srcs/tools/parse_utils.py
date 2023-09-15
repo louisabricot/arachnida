@@ -15,6 +15,7 @@ import validators
 LEVEL_MIN_VAL = 1
 LEVEL_MAX_VAL = 100
 
+
 def url_type(arg):
     """
     Type function for argparse - validates the URL.

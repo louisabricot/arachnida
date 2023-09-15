@@ -1,4 +1,4 @@
-from spider.url_utils import clean_url
+from tools.url_utils import clean_url
 
 
 def test_absolute_url_with_params_and_fragments():

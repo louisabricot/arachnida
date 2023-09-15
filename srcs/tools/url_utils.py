@@ -13,6 +13,7 @@ Functions:
 
 from urllib.parse import urlparse, urljoin
 
+
 def clean_url(base_url: str, url: str) -> str:
     """
     Cleans the given URL by removing any query parameters while preserving

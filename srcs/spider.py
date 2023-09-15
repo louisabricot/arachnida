@@ -85,8 +85,10 @@ def crawl_website(
     # Scrape nested URLs
     nested_urls = retrieve_nested_urls(url, depth)
 
+    exit(0)
     print("Found " + colored(f"{len(nested_urls)}", "white", "on_yellow") + " URLs")
-
+    for url in nested_urls:
+        print(url)
 
     cprint(
         f" 🔍  Scraping {len(nested_urls)} URLs for files ending with {extensions}...",

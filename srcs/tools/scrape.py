@@ -49,14 +49,16 @@ def scrape_files(webpage: str, extensions: list) -> set:
         soup = BeautifulSoup(response.content, "html.parser")
 
         # Gathers the 'src' attribute of all img tags
-        img_srcs = set(link.attrs["src"] for link in soup.find_all(["img"], src=True))
-        img_srcs.update(set(link.attrs["href"] for link in soup.find_all(["a"], href=True)))
+        links = set(link.attrs["src"] for link in soup.find_all(["img"], src=True))
+        links.update(
+            set(link.attrs["href"] for link in soup.find_all(["a"], href=True))
+        )
 
         # Generate the URL pattern based on specified extensions
         extension_patterns = r"(?:.(?!https?:\/\/))+.({})$".format("|".join(extensions))
 
-        # Filters 'src' based on the provided pattern
-        filtered_urls = {src for src in img_srcs if re.search(extension_patterns, src)}
+        # Filters links based on the provided pattern
+        filtered_urls = {link for link in links if re.search(extension_patterns, link)}
 
         return filtered_urls
 
@@ -110,13 +112,13 @@ def get_urls_from_page(
         elif response.status_code in (301, 302, 307, 308):
             redirection_url = response.headers.get("Location")
             if redirection_url and url_in_scope(redirection_url, base_url, depth):
-                if redirection_url not in visited:
+                if redirection_url.rstrip("/") not in visited:
                     get_urls_from_page(
                         redirection_url, base_url, depth, visited, nested_urls
                     )
 
                     # Add redirection URL to visited set
-                    visited.add(redirection_url)
+                    visited.add(redirection_url.rstrip("/"))
             else:
                 logging.error("Redirection to an external URL: %s", redirection_url)
     except requests.RequestException as e:
@@ -151,7 +153,7 @@ def get_urls_from_page_content(
         for link in soup.find_all(["link", "a"], href=True):
             url = clean_url(webpage, link.get("href"))
             if url.startswith(base_url) and url_in_scope(url, base_url, depth):
-                subpaths.add(url)
+                subpaths.add(url.rstrip("/"))
     return subpaths
 
 
@@ -183,7 +185,7 @@ def retrieve_nested_urls(base_url: str, depth: int) -> set:
         )
         if retrieved_urls:
             to_visit.update(retrieved_urls)
-        visited.add(webpage)
+        visited.add(webpage.rstrip("/"))
         to_visit.difference_update(visited)
 
     return nested_urls

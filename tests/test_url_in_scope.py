@@ -1,7 +1,6 @@
-from spider.scrape import url_in_scope
+from tools.scrape import url_in_scope
 
 
-# TODO: put parameters in variables and change their order
 def test_basic_depth():
     base_url = "https://github.com"
     url = "https://github.com/louisabricot"
