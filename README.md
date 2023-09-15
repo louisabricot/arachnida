@@ -1,50 +1,51 @@
-# Arachnida
+## About this project
 
 This project is the first in a series of cybersecurity-related projects at school 42. It involves developing two programs:
 - **spider**: a web scraper that recursively downloads any files matching the specified extensions,
 - **scorpion**: a metadata parser and editor.
 
-Both projects were developed in Python.
+### Built with
 
-## Table of Content
+![Python](https://img.shields.io/badge/python-3670A0?style=for-the-badge&logo=python&logoColor=ffdd54)
 
-- [Run locally](#run-locally)
-  - [Running tests](#running-tests) 
-- [Spider](#spider)
-- [Scorpion](#scorpion)
-- [References](#references)
+## Getting Started
 
-## Run locally
+### Prerequisites
 
-Pre-requisites: 
-- python3 and pip installed
+To run this project you'll need:
+- python3
+- pip3
 - make
 
-Clone the repository and run the `make` command:
+### Installation
 
+1. Clone the repository
 ```bash
-  git clone https://github.com/louisabricot/arachnida/
+  git clone https://github.com/louisabricot/arachnida
   cd arachnida
+```
+
+2. Install required packages
+```bash
+  make install
+```
+
+3. Setup the project
+```bash
   make
-```
+``` 
 
-Run the scraping tool:
+## Usage
 
-```bash
-  spider https://example.com --recursive --level=2 -p ./downloaded_images/ --extension jpg jpeg png
-```
-
-Run the parsing tool:
+Use `spider` to recursively download all *.png* and *.jpg* files, choosing the depth of recursion:
 
 ```bash
-  scorpion ./downloaded_images/
+  spider https://example.com --recursive --level=2 -p ./downloaded_images/ --extension jpg png
 ```
 
-Or get help:
-
+Use `scorpio` to display files metadata and remove them:
 ```bash
-  spider --help
-  scorpion --help
+  scorpio ./downloaded_images/ ...
 ```
 
 ### Running tests
@@ -61,4 +62,7 @@ A web scraper, also known as a web crawling tool, is a software application or s
 
 ## Scorpion
 
+## License
+
 ## References
+
