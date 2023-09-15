@@ -43,6 +43,7 @@ To run this project, ensure you have:
 Download .png and .jpg files recursively:
 
 ```bash
+  # usage: spider [-h] [--recursive] [--level LEVEL] [--path PATH] [--extension EXTENSION [EXTENSION ...]] url
   spider https://example.com --recursive --level=2 -p ./downloaded_images/ --extension jpg png
 ```
 
@@ -50,6 +51,7 @@ Download .png and .jpg files recursively:
 
 Display file metadata and make edits:
 ```bash
+  # usage: scorpio [-h] images [images ...]
   scorpio ./downloaded_images/ ...
 ```
 
@@ -60,7 +62,13 @@ To run tests:
 ```bash
   make test
 ```
+## Overview
 
+### Webscraping
+
+### Metadata edition
+
+What is metadata 
 ## License
 
 ## Project Status
