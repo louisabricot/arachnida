@@ -2,12 +2,11 @@ import argparse
 import logging
 import os
 
+
 def parse_file(filepath: str) -> None:
-    
     print("---- ", filepath, " ----")
 
     print("Size: %d", os.path.getsize(filepath))
-
 
 
 def parse():

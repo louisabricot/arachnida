@@ -85,10 +85,7 @@ def crawl_website(
     # Scrape nested URLs
     nested_urls = retrieve_nested_urls(url, depth)
 
-    exit(0)
     print("Found " + colored(f"{len(nested_urls)}", "white", "on_yellow") + " URLs")
-    for url in nested_urls:
-        print(url)
 
     cprint(
         f" 🔍  Scraping {len(nested_urls)} URLs for files ending with {extensions}...",
@@ -142,18 +139,18 @@ def crawl():
     """
     # Se up command-line argument parser
     parser = argparse.ArgumentParser(
-        description="Extracts files from the provided URL",
+        description="Downloads files with specified extensions from the provided URL.",
         epilog="Developed by louisabricot",
     )
 
-    parser.add_argument("url", type=url_type, help="The website's URL")
+    parser.add_argument("url", type=url_type, help="the website's URL")
 
     parser.add_argument(
         "--recursive",
         "-r",
         action="store_true",
         required="-l" in sys.argv,
-        help="Enable recursive download",
+        help="enable recursive download",
     )
 
     parser.add_argument(
@@ -161,14 +158,15 @@ def crawl():
         "-l",
         type=range_limited_int_type,
         default=5,
-        help="The maximum depth of the recursive download. Default is 5",
+        help="the maximum depth of the recursive download. Default is 5",
     )
 
     parser.add_argument(
+        "--path",
         "-p",
         type=str,
         default="./data/",
-        help="The path where the downloaded files will be saved. Default is ./data/",
+        help="the path where the downloaded files will be saved. Default is ./data/",
     )
 
     parser.add_argument(
@@ -177,7 +175,7 @@ def crawl():
         type=str,
         nargs="+",
         default=["jpg", "jpeg", "png", "gif", "bmp"],
-        help="File extensions to download. Default is jpg, jpeg, gif, png and bmp",
+        help="file extensions to download. Default is jpg, jpeg, gif, png and bmp",
     )
 
     args = parser.parse_args()

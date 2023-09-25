@@ -5,6 +5,18 @@ import random
 import requests
 
 
+def generate_unique_fullpath(pathname: str, download_directory: str) -> str:
+    # Split the filename and extension
+    filename, extension = os.path.splitext(pathname)
+
+    fullpath = os.path.join(download_directory, pathname)
+    while os.path.exists(fullpath):
+        random_string = "".join(random.choices(string.ascii_letters, k=4))
+        new_filename = "".join([filename, random_string, extension])
+        fullpath = os.path.join(download_directory, new_filename)
+    return fullpath
+
+
 def download_file(url: str, download_directory: str) -> bool:
     try:
         # Sends GET request to the file URL
@@ -14,15 +26,7 @@ def download_file(url: str, download_directory: str) -> bool:
         # Returns the file path name
         pathname = os.path.basename(url)
 
-        # Split the filename and extension
-        filename, extension = os.path.splitext(pathname)
-
-        # Change filename if file already exists
-        fullpath = os.path.join(download_directory, pathname)
-        while os.path.exists(fullpath):
-            random_string = "".join(random.choice(string.ascii_letters, k=4))
-            new_filename = "".join([filename, random_string, extension])
-            fullpath = os.path.join(download_directory, new_filename)
+        generate_unique_filename(pathname, download_directory)
 
         # Copy the content of the file locally
         with open(fullpath, "wb") as file:
