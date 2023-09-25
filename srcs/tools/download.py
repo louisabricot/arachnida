@@ -23,10 +23,7 @@ def download_file(url: str, download_directory: str) -> bool:
         response = requests.get(url, allow_redirects=False, timeout=5)
         response.raise_for_status()
 
-        # Returns the file path name
-        pathname = os.path.basename(url)
-
-        generate_unique_filename(pathname, download_directory)
+        fullpath = generate_unique_fullpath(os.path.basename(url), download_directory)
 
         # Copy the content of the file locally
         with open(fullpath, "wb") as file:

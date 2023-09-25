@@ -2,6 +2,7 @@ from tools.download import generate_unique_fullpath
 import os
 import shutil
 
+
 def test_unique_name():
     iteration = 100
     download_directory = "testing"
