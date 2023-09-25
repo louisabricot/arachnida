@@ -1,6 +1,6 @@
 from tools.download import generate_unique_fullpath
 import os
-
+import shutil
 
 def test_unique_name():
     iteration = 100
@@ -18,3 +18,4 @@ def test_unique_name():
         generated_names.add(name)
 
     assert len(generated_names) == iteration
+    shutil.rmtree(download_directory)
