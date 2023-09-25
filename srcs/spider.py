@@ -183,8 +183,8 @@ def crawl():
     logging.basicConfig(filename="spider.log", level=logging.ERROR)
 
     # Creates the download directory if it doesn't exist
-    if not os.path.exists(args.p):
-        os.makedirs(args.p)
+    if not os.path.exists(args.path):
+        os.makedirs(args.path)
 
     if not args.recursive:
         args.level = 0
@@ -222,5 +222,5 @@ def crawl():
         url=args.url.rstrip("/"),
         depth=args.level,
         extensions=args.extension,
-        download_directory=args.p,
+        download_directory=args.path,
     )
