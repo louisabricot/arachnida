@@ -62,14 +62,6 @@ To run tests:
 ```bash
   make test
 ```
-## Overview
-
-### Webscraping
-
-### Metadata edition
-
-What is metadata 
-## License
 
 ## Project Status
 
