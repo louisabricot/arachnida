@@ -13,7 +13,7 @@ these tasks efficiently. The module includes the following functions:
 3. `get_urls_from_page_content`: Extracts URLs from the HTML content of a web page
    using BeautifulSoup.
 
-4. `retrieve_nested_urls`: Iterates through paths containing a base URL and within
+4. `scrape_urls`: Iterates through paths containing a base URL and within
    the specified depth to retrieve more paths, effectively creating a set of nested
    URLs.
 """
@@ -157,7 +157,7 @@ def get_urls_from_page_content(
     return subpaths
 
 
-def retrieve_nested_urls(base_url: str, depth: int) -> set:
+def scrape_urls(base_url: str, depth: int) -> set:
     """
     Retrieves URLs within the scope specified by the base URL and depth.
     Each page visited is scraped for URLs. If the newly found URLs are within scope,

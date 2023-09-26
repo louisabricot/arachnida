@@ -40,7 +40,7 @@ import argparse
 import logging
 from termcolor import cprint, colored
 from tools.parse_utils import url_type, range_limited_int_type
-from tools.scrape import retrieve_nested_urls, scrape_files
+from tools.scrape import scrape_urls, scrape_files
 from tools.download import download_file
 
 LOGO = r"""                   .                                          ||
@@ -82,41 +82,36 @@ def crawl_website(
             attrs=["bold"],
         )
 
-    # Scrape nested URLs
-    nested_urls = retrieve_nested_urls(url, depth)
+        # Scrape nested URLs
+        urls = scrape_urls(url, depth)
+        print(f"Found {colored(len(urls), 'white', 'on_yellow')} URLs")
+    else:
+        urls = url
 
-    print("Found " + colored(f"{len(nested_urls)}", "white", "on_yellow") + " URLs")
-
+    # Scraping files with provided extensions
     cprint(
-        f" 🔍  Scraping {len(nested_urls)} URLs for files ending with {extensions}...",
+        f" 🔍  Scraping {len(urls)} URLs for files ending with {extensions}...",
         "white",
         attrs=["bold"],
     )
 
-    # Scrape files in nested_urls
-    file_urls = set()
-    for nested_url in nested_urls:
-        scraped_files = scrape_files(nested_url, extensions)
-        if scraped_files:
-            file_urls.update(scraped_files)
+    files = {file for url in urls for file in scrape_files(url, extensions)}
+    print(f"Found {colored(len(files), 'white', 'on_yellow')} files")
 
-    print("Found " + colored(f"{len(file_urls)}", "white", "on_yellow") + " files")
+    # Downloads files
     cprint(
-        f" ⬇️   Downloading {len(file_urls)} files to {download_directory}...",
+        f" ⬇️   Downloading {len(files)} files to {download_directory}...",
         "white",
         attrs=["bold"],
     )
-    # Download files from URLs
-    downloaded = 0
-    for file_url in file_urls:
-        downloaded += download_file(file_url, download_directory)
-    print(
-        "Successfully downloaded "
-        + colored(f"{downloaded}" + "/" + f"{len(file_urls)}", "white", "on_yellow")
-        + " files"
-    )
+
+    downloaded = sum(download_file(file, download_directory) for file in files)
+
+    print(f"Successfully downloaded {colored(downloaded, 'white', 'on_yellow')} files")
 
     cprint(" ✅  Done!", "light_green", attrs=["bold"])
+    if downloaded < len(files):
+        print("Check the spider.log file for more information\n")
 
 
 def crawl():
@@ -195,22 +190,17 @@ def crawl():
         " ............................................................................\n",
         "dark_grey",
     )
+    print(f"    :: Base URL         : {colored(args.url, 'white', attrs=['bold'])}")
     print(
-        "    :: Base URL         : " + colored(f"{args.url}", "white", attrs=["bold"])
-    )
-    print(
-        "    :: Extension(s)     : "
-        + colored(f"{args.extension}", "white", attrs=["bold"])
+        f"    :: Extension(s)     : {colored(args.extension, 'white', attrs=['bold'])}"
     )
     if args.recursive:
         print(
-            "    :: Recursion        : depth "
-            + colored(f"{args.level}", "white", attrs=["bold"])
+            f"    :: Recursion        : depth {colored(args.level, 'white', attrs=['bold'])}"
         )
     else:
         print(
-            "    :: Recursion        : "
-            + colored(f"{args.recursive}", "white", attrs=["bold"])
+            f"    :: Recursion        : {colored(args.recursive, 'white', attrs=['bold'])}"
         )
     cprint(
         " ............................................................................\n",
