@@ -58,8 +58,12 @@ def scrape_files(webpage: str, extensions: list) -> set:
         extension_patterns = r"(?:.(?!https?:\/\/))+.({})$".format("|".join(extensions))
 
         # Filters links based on the provided pattern
-        filtered_urls = {link for link in links if re.search(extension_patterns, link)}
-
+        # filtered_urls = {link for link in links if re.search(extension_patterns, link)}
+        filtered_urls = set()
+        for link in links:
+            if re.search(extension_patterns, link):
+                url = clean_url(webpage, link)
+                filtered_urls.add(url)
         return filtered_urls
 
     except requests.exceptions.RequestException as e:

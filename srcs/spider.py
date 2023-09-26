@@ -60,16 +60,14 @@ LOGO = r"""                   .                                          ||
                                                       (  // ()\/() \\  ) """
 
 
-def crawl_website(
-    url: str, depth: int, extensions: list, download_directory: str
-) -> None:
+def crawl_website(url: str, depth: int, extensions: list, directory: str) -> None:
     """
     Crawls a website, extracts files, and dowloads them.
 
     Args:
         url (str): The URL of the website to crawl.
         depth (int): The maximum depth of recursive crawling.
-        download_directory (str): The directory where downloaded files.
+        directory (str): The directory where downloaded files.
 
     Returns:
         None
@@ -100,12 +98,12 @@ def crawl_website(
 
     # Downloads files
     cprint(
-        f" ⬇️   Downloading {len(files)} files to {download_directory}...",
+        f" ⬇️   Downloading {len(files)} files to {directory}...",
         "white",
         attrs=["bold"],
     )
 
-    downloaded = sum(download_file(file, download_directory) for file in files)
+    downloaded = sum(download_file(directory, file) for file in files)
 
     print(f"Successfully downloaded {colored(downloaded, 'white', 'on_yellow')} files")
 
@@ -212,5 +210,5 @@ def crawl():
         url=args.url.rstrip("/"),
         depth=args.level,
         extensions=args.extension,
-        download_directory=args.path,
+        directory=args.path,
     )

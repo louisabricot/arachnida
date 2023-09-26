@@ -1,4 +1,4 @@
-from tools.download import generate_unique_fullpath
+from tools.download import generate_unique_filename
 import os
 import shutil
 
@@ -13,7 +13,7 @@ def test_unique_name():
     pathname = os.path.basename(url_image)
     generated_names = set()
     for _ in range(iteration):
-        name = generate_unique_fullpath(pathname, download_directory)
+        name = generate_unique_filename(download_directory, pathname)
         f = open(name, "x")
         f.close()
         generated_names.add(name)
