@@ -29,10 +29,22 @@ def display(information: dict):
             print(f"{key.capitalize():40}   {value}")
 
 
+def parse_exif(filepath: str, thumbnail: bool) -> dict:
+    exif = {}
+    with open(filepath, "rb") as file:
+        tags = exifread.process_file(file)
+        for tag in tags.items():
+            exif[tag] = tags[tag]
+            if thumbnail and tag == "JPEGThumbnail":
+                basename, extension = os.path.splitext(filepath)
+                thumbnailpath = f"{basename}_thumbnail{extension}"
+                with open(thumbnailpath, "wb") as file:
+                    file.write(tags[tag])
+    return exif
+
+
 def parse_file(filepath: str, thumbnail: bool) -> None:
     information = {}
-
-    f = open(filepath, "rb")
     filename, extension = os.path.splitext(filepath)
     information["filename"] = filename
     information["extension"] = extension
@@ -44,33 +56,35 @@ def parse_file(filepath: str, thumbnail: bool) -> None:
             information["resolution"] = img.size
 
             for key, value in img.info.items():
-                # TODO: if exif, alors parser avec exif parser
                 if key == "exif":
-                    exif = {}
-                    tags = exifread.process_file(f)
-                    for tag in tags.keys():
-                        exif[tag] = tags[tag]
-                        # print(f"{tag:50}       {str(tags[tag])[:30]}")
-                        if thumbnail and tag == "JPEGThumbnail":
-                            basename, extension = os.path.splitext(filepath)
-                            thumbnailpath = f"{basename}_thumbnail{extension}"
-                            with open(thumbnailpath, "wb") as file:
-                                file.write(tags[tag])
-                    information["exif"] = exif
+                    information["exif"] = parse_exif(filepath, thumbnail)
                 else:
                     information[key] = value
-                    # print(f"{key}: {value}")
-    except Exception as e:
+    except UnidentifiedImageError:
         # Is not an image
-        logging.error(f"An error occured: {str(e)}")
+        logging.error("%s is not an image", filepath)
 
     finally:
         display(information)
 
 
 def parse():
+    """
+    Main function for displaying file metadata and downloading thumbnails.
+
+    This function parses command-line arguments, sets up logging,
+    and initiates the parsing process.
+
+    Usage:
+        scorpio [OPTIONS] files
+
+    Options:
+        files               A list of files.
+        -t, --thumbnail     Downloads the file's thumbnail.
+    """
+
     parser = argparse.ArgumentParser(
-        description="Displays images metadata",
+        description="Displays file metadata",
         epilog="Developed by louisabricot",
     )
 
@@ -85,6 +99,7 @@ def parse():
     args = parser.parse_args()
 
     logging.basicConfig(filename="scorpio.log", encoding="utf-8", level=logging.ERROR)
+
     for file in args.files:
         if not os.path.isfile(file):
             logging.error("%s is not a file", file)
