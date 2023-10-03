@@ -4,6 +4,7 @@ import os
 from PIL import Image, UnidentifiedImageError
 import exifread
 from termcolor import cprint
+from datetime import datetime
 
 
 def display(information: dict):
@@ -19,28 +20,22 @@ def display(information: dict):
             print(f"Group                                      {stats.st_gid}")
             print(f"Dev                                        {stats.st_dev}")
             print(f"INODE                                      {stats.st_ino}")
+            print(
+                f"Last Modified                              {datetime.fromtimestamp(stats.st_mtime).strftime('%Y-%m-%d %H:%M')}"
+            )
+            print(
+                f"Created At                                 {datetime.fromtimestamp(stats.st_ctime).strftime('%Y-%m-%d %H:%M')}"
+            )
+            print(
+                f"Last Accessed At                           {datetime.fromtimestamp(stats.st_atime).strftime('%Y-%m-%d %H:%M')}"
+            )
         elif key == "exif":
             cprint("\nEXIF INFORMATION\n", "white", attrs=["bold"])
             exif = value
             for key, value in exif.items():
                 print(f"{key:36}       {str(value)[:30]}")
-            print("todo")
         else:
             print(f"{key.capitalize():40}   {value}")
-
-
-def parse_exif(filepath: str, thumbnail: bool) -> dict:
-    exif = {}
-    with open(filepath, "rb") as file:
-        tags = exifread.process_file(file)
-        for tag in tags.items():
-            exif[tag] = tags[tag]
-            if thumbnail and tag == "JPEGThumbnail":
-                basename, extension = os.path.splitext(filepath)
-                thumbnailpath = f"{basename}_thumbnail{extension}"
-                with open(thumbnailpath, "wb") as file:
-                    file.write(tags[tag])
-    return exif
 
 
 def parse_file(filepath: str, thumbnail: bool) -> None:
@@ -57,7 +52,8 @@ def parse_file(filepath: str, thumbnail: bool) -> None:
 
             for key, value in img.info.items():
                 if key == "exif":
-                    information["exif"] = parse_exif(filepath, thumbnail)
+                    with open(filepath, "rb") as file:
+                        information["exif"] = exifread.process_file(file)
                 else:
                     information[key] = value
     except UnidentifiedImageError:
@@ -66,6 +62,16 @@ def parse_file(filepath: str, thumbnail: bool) -> None:
 
     finally:
         display(information)
+        # faire le truc de thumbnail ici
+        if (
+            thumbnail
+            and "exif" in information
+            and "JPEGThumbnail" in information["exif"]
+        ):
+            basename, extension = os.path.splitext(filepath)
+            thumbnailpath = f"{basename}_thumbnail{extension}"
+            with open(thumbnailpath, "wb") as file:
+                file.write(information["exif"]["JPEGThumbnail"])
 
 
 def parse():
