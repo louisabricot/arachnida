@@ -150,7 +150,6 @@ def crawl():
         "--recursive",
         "-r",
         action="store_true",
-        required="-l" in sys.argv,
         help="enable recursive download",
     )
 
@@ -195,6 +194,8 @@ def crawl():
     if not os.path.exists(args.path):
         os.makedirs(args.path)
 
+    if args.level and args.recursive is False:
+        parser.error("--level requires --recursive.")
     if not args.recursive:
         args.level = 0
 
