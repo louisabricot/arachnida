@@ -30,11 +30,11 @@ def clean_url(base_url: str, url: str) -> str:
 
     # Clean the absolute URL by removing query parameters and trailing
     # slashes
-    url_parts = urlparse(url)._replace(params="", query="", fragment="")
+    url_parts = urlparse(url)
 
     if not url_parts.netloc:
         # If the provided URL is relative, make it absolute using the base URL
-        return urljoin(base_url, url_parts.path)
+        return urljoin(base_url, url)
 
     return url_parts.geturl()
 
