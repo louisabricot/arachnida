@@ -192,7 +192,15 @@ def crawl():
 
     # Creates the download directory if it doesn't exist
     if not os.path.exists(args.path):
-        os.makedirs(args.path)
+        try:
+            os.makedirs(args.path)
+        except OSError as error:
+            print(f"Could not create directory {args.path}: {error}")
+            sys.exit(-1)
+    if not os.access(args.path, os.R_OK | os.W_OK | os.X_OK):
+        os.chmod(args.path, 0o700)
+    st = os.stat(args.path)
+    print(oct(st.st_mode))
 
     if args.level and args.recursive is False:
         parser.error("--level requires --recursive.")
