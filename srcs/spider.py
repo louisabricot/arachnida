@@ -84,7 +84,7 @@ def crawl_website(url: str, depth: int, extensions: list, directory: str) -> Non
         urls = scrape_urls(url, depth)
         print(f"Found {colored(len(urls), 'white', 'on_yellow')} URLs")
     else:
-        urls = url
+        urls = [url]
 
     # Scraping files with provided extensions
     cprint(
