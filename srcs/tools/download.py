@@ -69,13 +69,12 @@ def download_file(directory: str, url: str) -> bool:
 
         response.raise_for_status()
 
-        if response.status_code == 200:
-            fullpath = generate_unique_filename(directory, os.path.basename(url))
+        fullpath = generate_unique_filename(directory, os.path.basename(url))
 
-            # Copy the content of the file locally
-            with open(fullpath, "wb") as file:
-                file.write(response.content)
-            return True
+        # Copy the content of the file locally
+        with open(fullpath, "wb") as file:
+            file.write(response.content)
+        return True
 
     except requests.exceptions.RequestException as e:
         logging.error("%s", str(e))

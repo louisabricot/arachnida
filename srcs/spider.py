@@ -60,7 +60,9 @@ LOGO = r"""                   .                                          ||
                                                       (  // ()\/() \\  ) """
 
 
-def crawl_website(url: str, depth: int, extensions: list, directory: str) -> None:
+def crawl_website(
+    url: str, depth: int, extensions: list, directory: str, verbose: bool
+) -> None:
     """
     Crawls a website, extracts files, and dowloads them.
 
@@ -86,6 +88,9 @@ def crawl_website(url: str, depth: int, extensions: list, directory: str) -> Non
     else:
         urls = [url]
 
+    if verbose:
+        for url in urls:
+            print(url)
     # Scraping files with provided extensions
     cprint(
         f" 🔍  Scraping {len(urls)} URLs for files ending with {extensions}...",
@@ -95,6 +100,9 @@ def crawl_website(url: str, depth: int, extensions: list, directory: str) -> Non
 
     files = {file for url in urls for file in scrape_files(url, extensions)}
     print(f"Found {colored(len(files), 'white', 'on_yellow')} files")
+    if verbose:
+        for file in files:
+            print(file)
 
     # Downloads files
     cprint(
@@ -147,9 +155,17 @@ def crawl():
     )
 
     parser.add_argument(
+        "--verbose",
+        "-v",
+        action="store_true",
+        help="enable verbose mode",
+    )
+
+    parser.add_argument(
         "--level",
         "-l",
         type=range_limited_int_type,
+        required="-r" in sys.argv,
         default=5,
         help="the maximum depth of the recursive download. Default is 5",
     )
@@ -211,4 +227,5 @@ def crawl():
         depth=args.level,
         extensions=args.extension,
         directory=args.path,
+        verbose=args.verbose,
     )
