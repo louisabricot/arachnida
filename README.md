@@ -22,8 +22,8 @@ To run this project, ensure you have:
 
 1. Clone the repository:
 ```bash
-  git clone https://github.com/louisabricot/arachnida
-  cd arachnida
+  git clone https://github.com/louisabricot/webscrapy
+  cd webscrapy
 ```
 
 2. Install the required packages:
